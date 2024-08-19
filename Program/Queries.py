@@ -1,9 +1,10 @@
 import sqlite3
+import datetime
 
 connection = sqlite3.connect("music_data.db")
 cursor = connection.cursor()
 
-#creating all the tables for the database
+#---------------------INITIALIZING DATABASE---------------------#
 def InitDatabase():
     cursor.execute("""CREATE TABLE Artist (
                 ArtistID INTEGER NOT NULL UNIQUE,
@@ -82,26 +83,68 @@ def InitDatabase():
                 FOREIGN KEY("OwnedMusicID") REFERENCES OwnedMusicID("OwnedMusicID")
                 );""")
 
+#---------------------INSERTING RECORDS---------------------#
+
+#add songs to to Songs Table while either plaintext or identifier key for the Foreign keys
 def AddSong(title, releaseDate, description, cost, artist, album, genre, musicfile):
     artist = GetOrAddRecord("Artist", artist, "Name")
     album = GetOrAddRecord("Album", album, "Title")
     genre = GetOrAddRecord("Genre", genre, "Title")
+    cursor.execute(f"""INSERT INTO Songs
+                   VALUES(NULL,"{title}", "{releaseDate}", "{description}", {cost}, {artist}, {album}, {genre}, {musicfile})""")
+    #connection.commit()
 
-    cursor.execute(f"""INSERT INTO Songs 
-                   VALUES(NULL,"{title}", "{releaseDate}", "{description}", "{cost}", "{artist}", "{album}", "{genre}", "{musicfile}")""")
-    
+#add music file
+def AddMusicFile(fileName, duration, fileSize, sampleRate):
+    cursor.execute(f"""INSERT INTO MusicFile("FileName", "Duration", "FileSize", "SampleRate") VALUES("{fileName}",{duration},{fileSize},{sampleRate})""")
+    #connection.commit()
+    return cursor.execute(f"""SELECT * FROM MusicFile 
+                          WHERE FileName = "{fileName}"
+                        AND Duration = {duration}
+                        AND FileSize = {fileSize}
+                        AND SampleRate = {sampleRate}""").fetchone()
 
+#checks if the inputted value is the unique idenitifier or the attribute argument
+# If the record does not exist, insert it
 def GetOrAddRecord(table, record, attribute):
     if type(record) != int or cursor.execute(f"""SELECT * FROM {table} 
-                      WHERE ArtistID = {record} """).fetchall() == []:
+                      WHERE {attribute} = {record} """).fetchone() is None:      
         if cursor.execute(f"""SELECT * FROM {table} 
-                      WHERE {attribute} = "{record}" """).fetchall() == []:
-            print("cool")
+                      WHERE {attribute} = "{record}" """).fetchone() is None:
             cursor.execute(f"""INSERT INTO {table}("{attribute}") VALUES("{record}")""")
-            return cursor.execute(f"""SELECT ArtistID FROM {table}
-                      WHERE {attribute} = "{record}" """).fetchall()[0][0]
+            
+            return cursor.execute(f"""SELECT * FROM {table}
+                      WHERE {attribute} = "{record}" """).fetchone()[0]
         else:
-            return cursor.execute(f"""SELECT ArtistID FROM {table} 
-                      WHERE {attribute} = "{record}" """).fetchall()[0][0]
+            return cursor.execute(f"""SELECT * FROM {table} 
+                      WHERE {attribute} = "{record}" """).fetchone()[0]
     return record
-AddSong("lol","lol","lol","lol","test","lol", "lol")
+
+def AddUser(username, password, email, bankDetails):
+    bankDetails = GetOrAddRecord("BankDetails", bankDetails, "BankNumber")
+    cursor.execute(f"""INSERT INTO User("Username", "Password", "Email", "BankDetailsID") 
+                   VALUES("{username}","{password}", "{email}", {bankDetails})""")
+
+def CreateOwnedMusic(userID, songID):
+    cursor.execute(f"""INSERT INTO OwnedMusic("UserID", "SongID") VALUES({userID}, {songID})""")
+    #connection.commit()
+    return cursor.execute(f"""SELECT OwnedMusicID FROM OWnedMusic 
+                   WHERE UserID = {userID}
+                    AND SongID = {songID}""").fetchone()[0]
+
+def CreateReciept(ownedMusicID, discount):
+    ownedMusic = cursor.execute(f"""SELECT * FROM OwnedMusic 
+                                WHERE OwnedMusicID = {ownedMusicID}""").fetchone()
+    cost = cursor.execute(f"""SELECT Cost FROM Songs
+                          WHERE SongID = {ownedMusicID[2]}""")
+    totalCost = cost - cost * discount
+    purchaseDate = datetime.today().strftime('%Y-%m-%d')
+    cursor.execute(f"""INSERT INTO Receipt("OwnedMusicID", "PurchaseDate", "Discount", "TotalCost") 
+                   VALUES({ownedMusicID}, "{purchaseDate}", "{discount}", "{totalCost}")""")
+    #connection.commit()
+    
+
+musicFile = AddMusicFile("woah", "100", "1000000", "4410000")
+AddSong("go with the flow","2009-10-23","funny funny", 100,"Queens Of The Stone Age","Songs For The Deaf","Rock", musicFile[0])
+
+cursor.close()
