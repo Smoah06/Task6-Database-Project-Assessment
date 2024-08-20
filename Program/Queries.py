@@ -1,7 +1,7 @@
 import sqlite3
 import datetime
 
-connection = sqlite3.connect("music_data.db")
+connection = sqlite3.connect("C:\\Users\\smoah\\Documents\\Task 6 CS\\Task6-Database-Project-Assessment\\Program\\music_data.db")
 cursor = connection.cursor()
 
 #---------------------INITIALIZING DATABASE---------------------#
@@ -61,7 +61,7 @@ def InitDatabase():
                 Username varchar(50) NOT NULL UNIQUE,
                 Password TEXT NOT NULL,
                 Email TEXT NOT NULL UNIQUE,
-                BankDetailsID INTEGER NOT NULL,
+                BankDetailsID INTEGER,
                 PRIMARY KEY("UserID" AUTOINCREMENT)
                 FOREIGN KEY("BankDetailsID") REFERENCES BankDetails("BankDetailsID")
                 );""")
@@ -121,7 +121,8 @@ def GetOrAddRecord(table, record, attribute):
     return record
 
 def AddUser(username, password, email, bankDetails):
-    bankDetails = GetOrAddRecord("BankDetails", bankDetails, "BankNumber")
+    if bankDetails.upper() != "NULL":
+        bankDetails = GetOrAddRecord("BankDetails", bankDetails, "BankNumber")
     cursor.execute(f"""INSERT INTO User("Username", "Password", "Email", "BankDetailsID") 
                    VALUES("{username}","{password}", "{email}", {bankDetails})""")
 
@@ -142,9 +143,41 @@ def CreateReciept(ownedMusicID, discount):
     cursor.execute(f"""INSERT INTO Receipt("OwnedMusicID", "PurchaseDate", "Discount", "TotalCost") 
                    VALUES({ownedMusicID}, "{purchaseDate}", "{discount}", "{totalCost}")""")
     #connection.commit()
-    
 
-musicFile = AddMusicFile("woah", "100", "1000000", "4410000")
-AddSong("go with the flow","2009-10-23","funny funny", 100,"Queens Of The Stone Age","Songs For The Deaf","Rock", musicFile[0])
+#---------------------ACCESSING RECORDS---------------------#
+   
+def GetUserFromNameAndPassword(name, password):
+    check = cursor.execute(f"""SELECT UserID FROM User
+                      WHERE Username = {name}
+                        AND Password = {password}""").fetchone()
+    if check is not None:
+        return [check, 0]
+    
+    check2 = cursor.execute(f"""SELECT UserID FROM User
+                      WHERE Username = {name}""").fetchone()
+
+    if check2 is not None:
+        return [None, 1]
+    else:
+        print("account does not exist or has wrong details")
+        return [None, 0]
+
+def GetAllSongs():
+    return cursor.execute(f"""SELECT * FROM Songs""").fetchall()
+
+def GetAllSongsInGroup(attribute, value):
+    return cursor.execute(f"""SELECT * FROM Songs
+                        WHERE {attribute} = "{value}" """).fetchall()
+
+def GetAllSongsSorted(attribute, desc):
+    if desc:
+        return cursor.execute(f"""SELECT * FROM Songs
+                            SORT BY {attribute} DESC """).fetchall()
+    else:
+        return cursor.execute(f"""SELECT * FROM Songs
+                            SORT BY {attribute} ASC """).fetchall()
+    
+#musicFile = AddMusicFile("woah", "100", "1000000", "4410000")
+#AddSong("go with the flow","2009-10-23","funny funny", 100,"Queens Of The Stone Age","Songs For The Deaf","Rock", musicFile[0])
 
 cursor.close()
