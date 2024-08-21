@@ -31,11 +31,11 @@ def SignUp(name, password, email, bankDetails):
         print("Invalid Email")
         return
     
-    AddUser(name, password, email, bankDetails)
+    AddUser(name.lower(), password, email.lower(), bankDetails)
     connection.commit()
 
 def LogIn(username, password):
-    user = GetUserFromNameAndPassword(username, password)[0] 
+    user = GetUserFromNameAndPassword(username.lower(), password)[0] 
     if user[0] is not None:
         print("accepted")
         return user[0]

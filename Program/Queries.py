@@ -16,13 +16,13 @@ def InitDatabase():
     cursor.execute("""CREATE TABLE Album (
                 AlbumID INTEGER NOT NULL UNIQUE,
                 Title varchar(50) NOT NULL,
-                PRIMARY KEY("AlbumID" AUTOINCREMENT)
+                PRIMARY KEY("AlbumID")
                 );""")
 
     cursor.execute("""CREATE TABLE Genre (
                 GenreID INTEGER NOT NULL UNIQUE,
                 Title varchar(50) NOT NULL,
-                PRIMARY KEY("GenreID" AUTOINCREMENT)
+                PRIMARY KEY("GenreID")
                 );""")
 
     cursor.execute("""CREATE TABLE MusicFile (
@@ -31,7 +31,7 @@ def InitDatabase():
                 Duration INTEGER NOT NULL,
                 FileSize INTEGER NOT NULL,
                 SampleRate INTEGER NOT NULL,
-                PRIMARY KEY("MusicFileID" AUTOINCREMENT)
+                PRIMARY KEY("MusicFileID")
                 );""")
 
     cursor.execute("""CREATE TABLE Songs (
@@ -44,7 +44,7 @@ def InitDatabase():
                 AlbumID INTEGER NOT NULL,
                 GenreID INTEGER NOT NULL,
                 MusicFileID INTEGER NOT NULL,
-                PRIMARY KEY("SongID" AUTOINCREMENT)
+                PRIMARY KEY("SongID")
                 FOREIGN KEY("ArtistID") REFERENCES Artist("ArtistID")
                 FOREIGN KEY("AlbumID") REFERENCES Album("AlbumID")
                 FOREIGN KEY("GenreID") REFERENCES Genre("GenreID")
@@ -54,7 +54,7 @@ def InitDatabase():
     cursor.execute("""CREATE TABLE BankDetails (
                 BankDetailsID INTEGER NOT NULL UNIQUE,
                 BankNumber INTEGER NOT NULL UNIQUE,
-                PRIMARY KEY("BankDetailsID" AUTOINCREMENT)
+                PRIMARY KEY("BankDetailsID")
                 );""")
 
     cursor.execute("""CREATE TABLE User (
@@ -63,14 +63,14 @@ def InitDatabase():
                 Password TEXT NOT NULL,
                 Email TEXT NOT NULL UNIQUE,
                 BankDetailsID INTEGER,
-                PRIMARY KEY("UserID" AUTOINCREMENT)
+                PRIMARY KEY("UserID")
                 FOREIGN KEY("BankDetailsID") REFERENCES BankDetails("BankDetailsID")
                 );""")
     cursor.execute("""CREATE TABLE OwnedMusic (
                 OwnedMusicID INTEGER NOT NULL UNIQUE,
                 UserID INTEGER NOT NULL,
                 SongID INTEGER NOT NULL,
-                PRIMARY KEY("OwnedMusicID" AUTOINCREMENT)
+                PRIMARY KEY("OwnedMusicID")
                 FOREIGN KEY("UserID") REFERENCES UserID("UserID")
                 FOREIGN KEY("SongID") REFERENCES SongID("SongID")
                 );""")
@@ -80,7 +80,7 @@ def InitDatabase():
                 PurchaseDate DATE NOT NULL,
                 Discount INTEGER,
                 TotalCost INTEGER NOT NULL,
-                PRIMARY KEY("ReceiptID" AUTOINCREMENT)
+                PRIMARY KEY("ReceiptID")
                 FOREIGN KEY("OwnedMusicID") REFERENCES OwnedMusicID("OwnedMusicID")
                 );""")
 
