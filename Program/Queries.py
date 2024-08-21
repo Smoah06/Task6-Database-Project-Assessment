@@ -1,5 +1,6 @@
 import sqlite3
 import datetime
+import atexit
 
 connection = sqlite3.connect("C:\\Users\\smoah\\Documents\\Task 6 CS\\Task6-Database-Project-Assessment\\Program\\music_data.db")
 cursor = connection.cursor()
@@ -97,7 +98,6 @@ def AddSong(title, releaseDate, description, cost, artist, album, genre, musicfi
 #add music file
 def AddMusicFile(fileName, duration, fileSize, sampleRate):
     cursor.execute(f"""INSERT INTO MusicFile("FileName", "Duration", "FileSize", "SampleRate") VALUES("{fileName}",{duration},{fileSize},{sampleRate})""")
-    #connection.commit()
     return cursor.execute(f"""SELECT * FROM MusicFile 
                           WHERE FileName = "{fileName}"
                         AND Duration = {duration}
@@ -121,14 +121,15 @@ def GetOrAddRecord(table, record, attribute):
     return record
 
 def AddUser(username, password, email, bankDetails):
-    if bankDetails.upper() != "NULL":
+    if bankDetails is not str:
+        bankDetails = GetOrAddRecord("BankDetails", bankDetails, "BankNumber")
+    elif bankDetails.upper() != "NULL":
         bankDetails = GetOrAddRecord("BankDetails", bankDetails, "BankNumber")
     cursor.execute(f"""INSERT INTO User("Username", "Password", "Email", "BankDetailsID") 
                    VALUES("{username}","{password}", "{email}", {bankDetails})""")
 
 def CreateOwnedMusic(userID, songID):
     cursor.execute(f"""INSERT INTO OwnedMusic("UserID", "SongID") VALUES({userID}, {songID})""")
-    #connection.commit()
     return cursor.execute(f"""SELECT OwnedMusicID FROM OWnedMusic 
                    WHERE UserID = {userID}
                     AND SongID = {songID}""").fetchone()[0]
@@ -142,24 +143,25 @@ def CreateReciept(ownedMusicID, discount):
     purchaseDate = datetime.today().strftime('%Y-%m-%d')
     cursor.execute(f"""INSERT INTO Receipt("OwnedMusicID", "PurchaseDate", "Discount", "TotalCost") 
                    VALUES({ownedMusicID}, "{purchaseDate}", "{discount}", "{totalCost}")""")
-    #connection.commit()
 
 #---------------------ACCESSING RECORDS---------------------#
    
 def GetUserFromNameAndPassword(name, password):
+
+    # [UserID if valid username and password, user exists]
+
     check = cursor.execute(f"""SELECT UserID FROM User
-                      WHERE Username = {name}
-                        AND Password = {password}""").fetchone()
+                      WHERE Username = "{name}" 
+                      AND Password = "{password}" """).fetchone()
     if check is not None:
-        return [check, 0]
+        return [check, 1]
     
     check2 = cursor.execute(f"""SELECT UserID FROM User
-                      WHERE Username = {name}""").fetchone()
+                      WHERE Username = "{name}" """).fetchone()
 
     if check2 is not None:
         return [None, 1]
     else:
-        print("account does not exist or has wrong details")
         return [None, 0]
 
 def GetAllSongs():
@@ -177,7 +179,18 @@ def GetAllSongsSorted(attribute, desc):
         return cursor.execute(f"""SELECT * FROM Songs
                             SORT BY {attribute} ASC """).fetchall()
     
-#musicFile = AddMusicFile("woah", "100", "1000000", "4410000")
-#AddSong("go with the flow","2009-10-23","funny funny", 100,"Queens Of The Stone Age","Songs For The Deaf","Rock", musicFile[0])
 
-cursor.close()
+def Purge():
+    cursor.execute("""DELETE FROM User""")
+    cursor.execute("""DELETE FROM BankDetails""")
+    connection.commit()
+
+#Purge()
+
+print(cursor.execute("""SELECT * FROM User""").fetchall())
+
+#making sure the cursor is closed when the user stops running the python file
+@atexit.register
+def quit():
+    print("\n bye bye")
+    cursor.close()

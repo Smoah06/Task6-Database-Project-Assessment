@@ -1,6 +1,6 @@
 from Queries import *
 
-def CreateAccount(name, password, email, bankDetails):
+def SignUp(name, password, email, bankDetails):
     if GetUserFromNameAndPassword(name, "NULL")[1] == 1:
         print("Hey this account already exist!")
         return
@@ -32,5 +32,26 @@ def CreateAccount(name, password, email, bankDetails):
         return
     
     AddUser(name, password, email, bankDetails)
-    
-CreateAccount("Noah Dalton", "CrazyGuy1234", "@.com", "NULL")
+    connection.commit()
+
+def LogIn(username, password):
+    user = GetUserFromNameAndPassword(username, password)[0] 
+    if user[0] is not None:
+        print("accepted")
+        return user[0]
+    else:
+        print("invalid username or password")
+        return None
+
+# SignUp("john_doe", "Password123", "john.doe@example.com", 1234567890)
+# SignUp("a" * 50, "ValidPass123", "user.longname@example.com", 2345678901)
+# SignUp("jane_doe", "ComplexPassword!123", "jane.doe@example.org", 3456789012)
+# SignUp("alice_smith", "SecurePass456", "alice@mail.example.co.uk", 4567890123)
+# SignUp("mike_doe_123", "StrongPass789", "mike123@example.com", 5678901234)
+# SignUp("chris_2024", "ChrisPass2024", "chris.doe@example.net", 6789012345)
+# SignUp("karen_lee", "P@ssword#789", "karen.lee@example.org", 7890123456)
+# SignUp("AliceSmith", "UpperCase123", "alice.smith@example.edu", 8901234567)
+# SignUp("robert_jones", "NumPass456", "robert.jones2024@example.com", 9012345678)
+# SignUp("nancy_miller", "MixedCase789", "Nancy.Miller@Example.org", 1234567809)
+
+
