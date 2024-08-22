@@ -187,7 +187,7 @@ def Purge():
 
 #Purge()
 
-print(cursor.execute("""SELECT * FROM User""").fetchall())
+print(cursor.execute("""SELECT * FROM Songs""").fetchall())
 
 #making sure the cursor is closed when the user stops running the python file
 @atexit.register
