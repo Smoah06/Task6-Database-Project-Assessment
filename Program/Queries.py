@@ -146,6 +146,10 @@ def CreateReciept(ownedMusicID, discount):
 
 #---------------------ACCESSING RECORDS---------------------#
    
+def GetRecordFromAttribute(table, attribute, value):
+    return cursor.execute(f"""SELECT * FROM {table}
+                            WHERE {attribute} = {value} """).fetchone()
+
 def GetUserFromNameAndPassword(name, password):
 
     # [UserID if valid username and password, user exists]
@@ -177,8 +181,34 @@ def GetAllSongsSorted(attribute, desc):
                             SORT BY {attribute} DESC """).fetchall()
     else:
         return cursor.execute(f"""SELECT * FROM Songs
-                            SORT BY {attribute} ASC """).fetchall()
-    
+                            ORDER BY {attribute} ASC """).fetchall()
+
+def GetMusicOwnedByUser(username):
+    return cursor.execute(f"""SELECT * FROM OwnedMusic
+                          INNER JOIN Songs ON Song.SongID = OwnedMusic.SongID
+                          INNER JOIN User ON User.UserID = OwnedMusic.UserID
+                          WHERE Username = "{username}" """).fetchall()
+
+#---------------------PROFITS---------------------#
+def GetAllProfits():
+    return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt""").fetchone()[0]
+
+def GetAllProfitsOnDay(date):
+    return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt
+                          WHERE PurchaseDate = "{date}" """).fetchone()[0]
+
+def GetAllProfitsOnMonth(date):
+    return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt
+                          WHERE PurchaseDate LIKE "{date}%" """).fetchone()[0]
+def GetAllProfitsOnYear(year):
+    return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt
+                          WHERE PurchaseDate LIKE "{year}%" """).fetchone()[0]
+
+def NumOfSalesEachDay():
+    cursor.execute(f"""SELECT COUNT(RecieptID) FROM Receipt
+                          GROUP BY PurchaseDate""").fetchall()[0]
+
+#---------------------REMOVE RECORDS---------------------#
 
 def Purge():
     cursor.execute("""DELETE FROM User""")
