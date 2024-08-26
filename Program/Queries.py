@@ -158,6 +158,7 @@ def GetUserFromNameAndPassword(name, password):
                       WHERE Username = "{name}" 
                       AND Password = "{password}" """).fetchone()
     if check is not None:
+        print("Epic")
         return [check, 1]
     
     check2 = cursor.execute(f"""SELECT UserID FROM User
@@ -208,7 +209,20 @@ def NumOfSalesEachDay():
     cursor.execute(f"""SELECT COUNT(RecieptID) FROM Receipt
                           GROUP BY PurchaseDate""").fetchall()[0]
 
+#---------------------MODIFY RECORDS---------------------#
+
+def ModifyRecordWithAttribute(table, attribute, value, newAttribute, newValue):
+    cursor.execute(f"""UPDATE {table}
+                    SET {newAttribute} = {newValue}
+                    WHERE {attribute} = {value}""")
+    connection.commit()
+
 #---------------------REMOVE RECORDS---------------------#
+
+def RemoveRecordWithAttribute(table, attribute, value):
+    cursor.execute(f"""DELETE FROM {table}
+                    WHERE {attribute} = {value};""")
+    connection.commit()
 
 def Purge():
     cursor.execute("""DELETE FROM User""")
@@ -217,7 +231,7 @@ def Purge():
 
 #Purge()
 
-print(cursor.execute("""SELECT * FROM Songs""").fetchall())
+#print(cursor.execute("""SELECT * FROM Songs""").fetchall())
 
 #making sure the cursor is closed when the user stops running the python file
 @atexit.register
