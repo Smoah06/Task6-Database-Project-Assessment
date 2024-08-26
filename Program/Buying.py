@@ -11,4 +11,4 @@ def BuyMusic(username, songTitle, discount):
         print("invalid discount")
         return
 
-    CreateReciept(ownedMusic, discount)
+    CreateReceipt(ownedMusic, discount)

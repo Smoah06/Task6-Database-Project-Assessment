@@ -1,5 +1,6 @@
 from User import *
 from Songs import *
+from Buying import *
 from Queries import *
 
 while True:
@@ -87,7 +88,7 @@ while True:
 
                     
         case 3:
-            option2 = input("Receipt Options: \n1) Get All Profits \n2) Get Profits On Date \n3) Num Of Sales Each Day\n...")
+            option2 = input("Receipt Options: \n1) Get All Profits \n2) Get Profits On Date \n3) Num Of Sales Each Day\n4) Buy Song\n...")
             match int(option2):
                 case 1:
                     print(GetAllProfits())
@@ -105,3 +106,10 @@ while True:
                             print(GetAllProfitsOnYear(date))
                 case 3:
                     NumOfSalesEachDay()
+                case 4:
+                    name = input("What is your username? ")
+                    password = input("what is your password? ")
+                    user = GetUserFromNameAndPassword(name.lower(), password)
+                    songTitle = input("What is the song title? ")
+                    discount = input("How much is it discounted in percentage? ")
+                    BuyMusic(name, songTitle, int(discount))

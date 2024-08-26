@@ -134,12 +134,12 @@ def CreateOwnedMusic(userID, songID):
                    WHERE UserID = {userID}
                     AND SongID = {songID}""").fetchone()[0]
 
-def CreateReciept(ownedMusicID, discount):
+def CreateReceipt(ownedMusicID, discount):
     ownedMusic = cursor.execute(f"""SELECT * FROM OwnedMusic 
                                 WHERE OwnedMusicID = {ownedMusicID}""").fetchone()
     cost = cursor.execute(f"""SELECT Cost FROM Songs
                           WHERE SongID = {ownedMusicID[2]}""")
-    totalCost = cost - cost * discount
+    totalCost = cost - cost * discount/100
     purchaseDate = datetime.today().strftime('%Y-%m-%d')
     cursor.execute(f"""INSERT INTO Receipt("OwnedMusicID", "PurchaseDate", "Discount", "TotalCost") 
                    VALUES({ownedMusicID}, "{purchaseDate}", "{discount}", "{totalCost}")""")
