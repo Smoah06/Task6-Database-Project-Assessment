@@ -1,3 +1,5 @@
+#functions used to input all test data
+
 # SignUp("john_doe", "Password123", "john.doe@example.com", 1234567890)
 # SignUp("a" * 50, "ValidPass123", "user.longname@example.com", 2345678901)
 # SignUp("jane_doe", "ComplexPassword!123", "jane.doe@example.org", 3456789012)
@@ -140,3 +142,14 @@
 #     7500,
 #     48000
 # )
+
+# BuyMusic("john_doe", "song of the sky", 10)
+# BuyMusic("jane_doe", "rhythm of the night", 20)
+# BuyMusic("alice_smith", "golden memories", 30)
+# BuyMusic("mike_doe_123", "waves of serenity", 5)
+# BuyMusic("chris_2024", "sunset boulevard", 15)
+# BuyMusic("karen_lee", "echoes of the past", 0)
+# BuyMusic("AliceSmith", "mountain's call", 25)
+# BuyMusic("robert_jones", "whispers in the wind", 50)
+# BuyMusic("nancy_miller", "dance of the fireflies", 75)
+# BuyMusic("john_doe", "journey through time", 100)

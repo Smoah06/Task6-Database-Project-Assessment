@@ -134,13 +134,13 @@ def CreateOwnedMusic(userID, songID):
                    WHERE UserID = {userID}
                     AND SongID = {songID}""").fetchone()[0]
 
-def CreateReceipt(ownedMusicID, discount):
+def CreateReceipt(ownedMusicID, discount, songID):
     ownedMusic = cursor.execute(f"""SELECT * FROM OwnedMusic 
                                 WHERE OwnedMusicID = {ownedMusicID}""").fetchone()
     cost = cursor.execute(f"""SELECT Cost FROM Songs
-                          WHERE SongID = {ownedMusicID[2]}""")
-    totalCost = cost - cost * discount/100
-    purchaseDate = datetime.today().strftime('%Y-%m-%d')
+                          WHERE SongID = {songID}""").fetchone()[0]
+    totalCost = float(cost) - float(cost) * float(discount)/100
+    purchaseDate = datetime.datetime.today().strftime('%Y-%m-%d')
     cursor.execute(f"""INSERT INTO Receipt("OwnedMusicID", "PurchaseDate", "Discount", "TotalCost") 
                    VALUES({ownedMusicID}, "{purchaseDate}", "{discount}", "{totalCost}")""")
 
@@ -195,19 +195,20 @@ def GetAllProfits():
     return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt""").fetchone()[0]
 
 def GetAllProfitsOnDay(date):
-    return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt
+    return cursor.execute(f"""SELECT SUM(TotalCost) AS Profit FROM Receipt
                           WHERE PurchaseDate = "{date}" """).fetchone()[0]
 
 def GetAllProfitsOnMonth(date):
-    return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt
+    return cursor.execute(f"""SELECT SUM(TotalCost) AS Profit FROM Receipt
                           WHERE PurchaseDate LIKE "{date}%" """).fetchone()[0]
 def GetAllProfitsOnYear(year):
-    return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt
+    return cursor.execute(f"""SELECT SUM(TotalCost) AS Profit FROM Receipt
                           WHERE PurchaseDate LIKE "{year}%" """).fetchone()[0]
 
 def NumOfSalesEachDay():
-    cursor.execute(f"""SELECT COUNT(RecieptID) FROM Receipt
-                          GROUP BY PurchaseDate""").fetchall()[0]
+    data = cursor.execute(f"""SELECT COUNT(ReceiptID) AS NumberOfSales, PurchaseDate FROM Receipt
+                          GROUP BY PurchaseDate""").fetchall()
+    return [data, cursor.description]
 
 #---------------------MODIFY RECORDS---------------------#
 
