@@ -225,7 +225,15 @@ def RemoveRecordWithAttribute(table, attribute, value):
                     WHERE {attribute} = {value};""")
     connection.commit()
 
+#Delete every record
 def Purge():
+    cursor.execute("""DELETE FROM Receipt""")
+    cursor.execute("""DELETE FROM OwnedMusic""")
+    cursor.execute("""DELETE FROM Songs""")
+    cursor.execute("""DELETE FROM Artist""")
+    cursor.execute("""DELETE FROM Genre""")
+    cursor.execute("""DELETE FROM Album""")
+    cursor.execute("""DELETE FROM MusicFile""")
     cursor.execute("""DELETE FROM User""")
     cursor.execute("""DELETE FROM BankDetails""")
     connection.commit()
