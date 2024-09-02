@@ -1,6 +1,7 @@
 import datetime
 from Queries import *
 
+#add new song into the database from user input
 def InsertNewSong(title, releaseDate, description, cost, artist, album, genre, fileName, duration, fileSize, sampleRate):
     condsLength = [
         lambda s: len(s) <= 50

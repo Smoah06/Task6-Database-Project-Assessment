@@ -120,6 +120,7 @@ def GetOrAddRecord(table, record, attribute):
                       WHERE {attribute} = "{record}" """).fetchone()[0]
     return record
 
+#add an user to the user table
 def AddUser(username, password, email, bankDetails):
     if bankDetails is not str:
         bankDetails = GetOrAddRecord("BankDetails", bankDetails, "BankNumber")
@@ -128,12 +129,14 @@ def AddUser(username, password, email, bankDetails):
     cursor.execute(f"""INSERT INTO User("Username", "Password", "Email", "BankDetailsID") 
                    VALUES("{username}","{password}", "{email}", {bankDetails})""")
 
+#create a record for owned music with user and song id
 def CreateOwnedMusic(userID, songID):
     cursor.execute(f"""INSERT INTO OwnedMusic("UserID", "SongID") VALUES({userID}, {songID})""")
     return cursor.execute(f"""SELECT OwnedMusicID FROM OWnedMusic 
                    WHERE UserID = {userID}
                     AND SongID = {songID}""").fetchone()[0]
 
+#create a receipt based on ownedmusic and discount
 def CreateReceipt(ownedMusicID, discount, songID):
     ownedMusic = cursor.execute(f"""SELECT * FROM OwnedMusic 
                                 WHERE OwnedMusicID = {ownedMusicID}""").fetchone()
@@ -146,10 +149,12 @@ def CreateReceipt(ownedMusicID, discount, songID):
 
 #---------------------ACCESSING RECORDS---------------------#
    
+#get record from value
 def GetRecordFromAttribute(table, attribute, value):
     return cursor.execute(f"""SELECT * FROM {table}
                             WHERE {attribute} = {value} """).fetchone()
 
+#check if the username or password is correct 
 def GetUserFromNameAndPassword(name, password):
 
     # [UserID if valid username and password, user exists]
@@ -169,13 +174,16 @@ def GetUserFromNameAndPassword(name, password):
     else:
         return [None, 0]
 
+#get all song records
 def GetAllSongs():
     return cursor.execute(f"""SELECT * FROM Songs""").fetchall()
 
+#filter song records
 def GetAllSongsInGroup(attribute, value):
     return cursor.execute(f"""SELECT * FROM Songs
                         WHERE {attribute} = "{value}" """).fetchall()
 
+#sort song records
 def GetAllSongsSorted(attribute, desc):
     if desc:
         return cursor.execute(f"""SELECT * FROM Songs
@@ -184,6 +192,7 @@ def GetAllSongsSorted(attribute, desc):
         return cursor.execute(f"""SELECT * FROM Songs
                             ORDER BY {attribute} ASC """).fetchall()
 
+#get all owned music based on username
 def GetMusicOwnedByUser(username):
     return cursor.execute(f"""SELECT * FROM OwnedMusic
                           INNER JOIN Songs ON Song.SongID = OwnedMusic.SongID
@@ -191,20 +200,24 @@ def GetMusicOwnedByUser(username):
                           WHERE Username = "{username}" """).fetchall()
 
 #---------------------PROFITS---------------------#
+#get all profit
 def GetAllProfits():
     return cursor.execute(f"""SELECT SUM(TotalCost) FROM Receipt""").fetchone()[0]
 
+#get all profit on a specific day
 def GetAllProfitsOnDay(date):
     return cursor.execute(f"""SELECT SUM(TotalCost) AS Profit FROM Receipt
                           WHERE PurchaseDate = "{date}" """).fetchone()[0]
-
+#get all profit on a specific month
 def GetAllProfitsOnMonth(date):
     return cursor.execute(f"""SELECT SUM(TotalCost) AS Profit FROM Receipt
                           WHERE PurchaseDate LIKE "{date}%" """).fetchone()[0]
+#get all profit on a specific year
 def GetAllProfitsOnYear(year):
     return cursor.execute(f"""SELECT SUM(TotalCost) AS Profit FROM Receipt
                           WHERE PurchaseDate LIKE "{year}%" """).fetchone()[0]
 
+#number of sales each day
 def NumOfSalesEachDay():
     data = cursor.execute(f"""SELECT COUNT(ReceiptID) AS NumberOfSales, PurchaseDate FROM Receipt
                           GROUP BY PurchaseDate""").fetchall()
@@ -212,6 +225,7 @@ def NumOfSalesEachDay():
 
 #---------------------MODIFY RECORDS---------------------#
 
+#modify record with value
 def ModifyRecordWithAttribute(table, attribute, value, newAttribute, newValue):
     cursor.execute(f"""UPDATE {table}
                     SET {newAttribute} = {newValue}
@@ -220,6 +234,7 @@ def ModifyRecordWithAttribute(table, attribute, value, newAttribute, newValue):
 
 #---------------------REMOVE RECORDS---------------------#
 
+#remove record with value
 def RemoveRecordWithAttribute(table, attribute, value):
     cursor.execute(f"""DELETE FROM {table}
                     WHERE {attribute} = {value};""")
@@ -239,8 +254,6 @@ def Purge():
     connection.commit()
 
 #Purge()
-
-#print(cursor.execute("""SELECT * FROM Songs""").fetchall())
 
 #making sure the cursor is closed when the user stops running the python file
 @atexit.register

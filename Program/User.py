@@ -1,5 +1,6 @@
 from Queries import *
 
+#add new user to database from user inputs
 def SignUp(name, password, email, bankDetails):
     if GetUserFromNameAndPassword(name, "NULL")[1] == 1:
         print("Hey this account already exist!")
@@ -34,6 +35,7 @@ def SignUp(name, password, email, bankDetails):
     AddUser(name.lower(), password, email.lower(), bankDetails)
     connection.commit()
 
+#check username and password is valid (for when a user front end exists)
 def LogIn(username, password):
     user = GetUserFromNameAndPassword(username.lower(), password)[0] 
     if user[0] is not None:
